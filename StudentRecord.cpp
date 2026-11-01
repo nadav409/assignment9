@@ -1,0 +1,114 @@
+#include "StudentRecord.hpp"
+
+#include <algorithm>
+#include <iomanip>
+#include <sstream>
+#include <stdexcept>
+
+namespace registration {
+
+StudentRecord createRecord(const std::string& name, int id, double grade) {
+    if (name.empty()) {
+        throw std::invalid_argument("name must not be empty");
+    }
+    if (id <= 0) {
+        throw std::invalid_argument("id must be positive");
+    }
+    if (grade < 0.0 || grade > 100.0) {
+        throw std::invalid_argument("grade must be between 0 and 100");
+    }
+    return StudentRecord{name, id, grade};
+}
+
+const std::string& getName(const StudentRecord& record) {
+    return std::get<0>(record);
+}
+
+int getId(const StudentRecord& record) {
+    return std::get<1>(record);
+}
+
+double getGrade(const StudentRecord& record) {
+    return std::get<2>(record);
+}
+
+void unpackRecord(const StudentRecord& record, std::string& name, int& id, double& grade) {
+    name = getName(record);
+    id = getId(record);
+    grade = getGrade(record);
+}
+
+std::string formatRecord(const StudentRecord& record) {
+    std::ostringstream output;
+    output << getName(record) << " (ID: " << getId(record) << ", Grade: "
+           << std::fixed << std::setprecision(1) << getGrade(record) << ")";
+    return output.str();
+}
+
+double averageGrade(const std::vector<StudentRecord>& records) {
+    if (records.empty()) {
+        throw std::invalid_argument("records must not be empty");
+    }
+
+    double sum = 0.0;
+    for (const auto& record : records) {
+        sum += getGrade(record);
+    }
+    return sum / static_cast<double>(records.size());
+}
+
+StudentRecord bestStudent(const std::vector<StudentRecord>& records) {
+    if (records.empty()) {
+        throw std::invalid_argument("records must not be empty");
+    }
+
+    return *std::max_element(records.begin(), records.end(), [](const StudentRecord& left, const StudentRecord& right) {
+        if (getGrade(left) != getGrade(right)) {
+            return getGrade(left) < getGrade(right);
+        }
+        if (getName(left) != getName(right)) {
+            return getName(left) > getName(right);
+        }
+        return getId(left) > getId(right);
+    });
+}
+
+std::vector<StudentRecord> sortByGrade(const std::vector<StudentRecord>& records) {
+    std::vector<StudentRecord> sorted = records;
+    std::sort(sorted.begin(), sorted.end(), [](const StudentRecord& left, const StudentRecord& right) {
+        if (getGrade(left) != getGrade(right)) {
+            return getGrade(left) > getGrade(right);
+        }
+        if (getName(left) != getName(right)) {
+            return getName(left) < getName(right);
+        }
+        return getId(left) < getId(right);
+    });
+    return sorted;
+}
+
+std::vector<StudentRecord> sortByName(const std::vector<StudentRecord>& records) {
+    std::vector<StudentRecord> sorted = records;
+    std::sort(sorted.begin(), sorted.end(), [](const StudentRecord& left, const StudentRecord& right) {
+        if (getName(left) != getName(right)) {
+            return getName(left) < getName(right);
+        }
+        if (getId(left) != getId(right)) {
+            return getId(left) < getId(right);
+        }
+        return getGrade(left) < getGrade(right);
+    });
+    return sorted;
+}
+
+std::vector<StudentRecord> filterByGrade(const std::vector<StudentRecord>& records, double minGrade) {
+    std::vector<StudentRecord> filtered;
+    for (const auto& record : records) {
+        if (getGrade(record) > minGrade) {
+            filtered.push_back(record);
+        }
+    }
+    return filtered;
+}
+
+} // namespace registration
