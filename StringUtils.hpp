@@ -11,6 +11,7 @@ std::string toLower(const std::string& text);
 std::string trim(const std::string& text);
 std::vector<std::string> split(const std::string& text, char delimiter);
 
+// Joins all the parts of any range into one string with the delimiter between them.
 template <typename Range>
 std::string join(const Range& parts, const std::string& delimiter) {
     std::string result;

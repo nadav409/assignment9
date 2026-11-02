@@ -6,6 +6,7 @@
 
 namespace registration {
 
+// Returns the kind of type T as a string, checked at compile time with if constexpr.
 template <typename T>
 std::string describeType() {
     if constexpr (std::is_same_v<T, std::string>) {
@@ -21,16 +22,19 @@ std::string describeType() {
     }
 }
 
+// True if T is an integer or a floating point type.
 template <typename T>
 constexpr bool isNumeric() {
     return std::is_integral_v<T> || std::is_floating_point_v<T>;
 }
 
+// True if both types are exactly the same.
 template <typename Left, typename Right>
 constexpr bool areSameType() {
     return std::is_same_v<Left, Right>;
 }
 
+// Converts a number to a string, floating point values get 2 decimals.
 template <typename Number>
 std::string numericToString(Number value) {
     if constexpr (std::is_integral_v<Number>) {
@@ -44,12 +48,14 @@ std::string numericToString(Number value) {
     }
 }
 
+// Adds two numbers in a common type, two integers are added as long long.
 template <typename Left, typename Right>
 auto safeAdd(Left left, Right right) {
     using Result = std::conditional_t<std::is_integral_v<Left> && std::is_integral_v<Right>, long long, std::common_type_t<Left, Right>>;
     return static_cast<Result>(left) + static_cast<Result>(right);
 }
 
+// Returns a default value of T, like 0 or an empty string.
 template <typename T>
 T getZero() {
     return T{};
